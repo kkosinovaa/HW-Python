@@ -80,7 +80,7 @@ class PizzaListCreateView(ListCreateAPIView): # і ось фінальний, н
 #         return Response(serializer.data,status.HTTP_200_OK) # віддаємо оновлену піцу
 
 
-class PizzaRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView): # фінальна магія дрф: цей клас вже вміє і діставати, і оновлювати, і видаляти по id. замінює весь той закоментований код
+class PizzaRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView): # юзаємо цей готовий дженерік замість базового apiview бо він під капотом вже має написані методи get put patch і delete. тобто нам не треба руками писати if request.method == 'GET', самостійно шукати об'єкт в базі через get_object_or_404, валідувати дані і зберігати їх — дженерік робить весь цей crud за нас на основі кверісету і серіалізатора
     serializer_class = PizzaSerializer # просто кажемо йому який серіалізатор юзати
     queryset = PizzaModel.objects.all() # і вказуємо з якої таблиці брати дані для роботи
     http_method_names = ['get', 'put', 'delete'] # обмежуємо методи: дозволяємо тільки читати, повністю оновлювати та видаляти (тут наприклад відключено patch)

@@ -15,9 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-
+from django.urls import path, include # імпортую include щоб підключати інші файли з урлами
 
 urlpatterns = [
-    path('pizzas', include('apps.pizza.urls')),
+    path('pizzas', include('apps.pizza.urls')), # include каже джанзі йди в папку pizza відкрий там urls.py і бери маршрути звідти. цей шлях pizzas стає базовим префіксом тобто якщо в підключеному файлі є шлях /<int:pk> то під капотом вони автоматично склеяться в pizzas/<int:pk>
 ]
