@@ -1,20 +1,20 @@
-from django.db.models import QuerySet
-from django.http import QueryDict
-from rest_framework.exceptions import ValidationError
+from django.db.models import QuerySet # імпортую кверісет з джанги, щоб вказати тип даних для результату функції
+from django.http import QueryDict # тягну кверідікт, це тип об'єкта, в якому джанга зберігає параметри запиту з урла (query params)
+from rest_framework.exceptions import ValidationError # дістаю помилку валідації з дрф-ки, щоб красиво відбивати неправильні запити
 
-from apps.pizza.models import PizzaModel
+from apps.pizza.models import PizzaModel # підтягую нашу модельку піци з апки, щоб мати змогу робити запити в базу даних
 
 
-def filter_pizza(query:QueryDict) -> QuerySet:
-    qs =PizzaModel.objects.all()
-    for k,v in query.items():
-        print("KEY =", repr(k))
-        print("VALUE =", repr(v))
-        match k:
-            case 'price_gt':
-                qs =qs.filter(price__gt=v)
-            case 'price_lt':
-                qs = qs.filter(price__lt=v)
-            case _:
-                raise ValidationError("detail:"f'"{k}" is not a valid price')
-    return qs
+def filter_pizza(query:QueryDict) -> QuerySet: # створюю функцію для фільтрації, на вхід чекає словник з параметрами, а віддає кверісет з піцами
+    qs =PizzaModel.objects.all() # дістаю з бази всі піци, це наша стартова точка, на яку будемо накидувати фільтри
+    for k,v in query.items(): # пробігаюсь циклом по всіх переданих параметрах, розпаковую їх на ключ (k) і значення (v)
+        print("KEY =", repr(k)) # просто прінтую ключ в консоль для дебагу, щоб бачити що саме прилетіло
+        print("VALUE =", repr(v)) # так само виводжу значення параметра для наглядності
+        match k: # юзаю конструкцію match-case (як світч), щоб перевірити, по якому саме ключу треба фільтрувати
+            case 'price_gt': # якщо в урлі передали price_gt (ціна більша за)...
+                qs =qs.filter(price__gt=v) # докидаю в наш кверісет фільтр до бази, щоб ціна піци була строго більша за вказане значення
+            case 'price_lt': # якщо прилетів ключ price_lt (ціна менша за)...
+                qs = qs.filter(price__lt=v) # фільтрую кверісет так, щоб залишились тільки ті піци, що дешевші за це значення
+            case _: # якщо прийшов якийсь лівий ключ, якого ми не очікували і не обробляємо
+                raise ValidationError("detail:"f'"{k}" is not a valid price') # викидаю помилку валідації, юзер отримає 400 статус з повідомленням
+    return qs # повертаю готовий відфільтрований кверісет, щоб далі з ним вже працювала в'юха чи серіалізатор

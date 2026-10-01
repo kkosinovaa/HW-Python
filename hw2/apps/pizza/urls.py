@@ -1,8 +1,8 @@
-from django.urls import path
+from django.urls import path # тягну функцію path з джанги, вона потрібна, щоб прописувати маршрути (ендпоінти)
 
-from apps.pizza.views import PizzaListCreateView, PizzaRetrieveUpdateDestroyView
+from apps.pizza.views import PizzaListCreateView, PizzaRetrieveUpdateDestroyView # імпортую наші класні в'юхи, написані на дженеріках, щоб прив'язати їх до конкретних адрес
 
-urlpatterns = [
-    path('', PizzaListCreateView.as_view()),
-    path('/<int:pk>', PizzaRetrieveUpdateDestroyView.as_view()),
+urlpatterns = [ # створюю список маршрутів. джанга завжди шукає змінну саме з такою назвою, щоб зрозуміти, куди направляти запити
+    path('', PizzaListCreateView.as_view()), # реєструю базовий маршрут (пустий рядок). сюди полетять get (отримати всі) і post (створити). метод as_view() обов'язковий, він перетворює наш клас на функцію, яку розуміє джанга
+    path('/<int:pk>', PizzaRetrieveUpdateDestroyView.as_view()), # маршрут для конкретної піци. <int:pk> означає, що ми очікуємо в урлі ціле число (int), яке джанга передасть у в'юху як аргумент pk (primary key). сюди полетять запити get, put, delete по конкретній айдішці
 ]

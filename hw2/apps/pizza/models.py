@@ -1,11 +1,11 @@
-from django.db import models
+from django.db import models # стандартний імпорт джангівських моделей для роботи з базою даних
 
-from core.models import BaseModel
+from core.models import BaseModel # підтягуємо нашу абстрактну базову модельку (з папки core), щоб взяти звідти поля часу
 
 
-class PizzaModel(BaseModel):
-    class Meta:
-        db_table = 'pizza'
-    name = models.CharField(max_length=20)
-    size = models.IntegerField()
-    price = models.FloatField()
+class PizzaModel(BaseModel): # створюємо клас для нашої піци, але наслідуємось не від стандартного models.model, а від нашого basemodel. тепер тут неявно вже є created_at та updated_at
+    class Meta: # мета-клас для специфічних налаштувань таблиці в базі
+        db_table = 'pizza' # явно кажемо джанзі, щоб в базі даних ця табличка називалась гарно і коротко - 'pizza'. якби ми цього не написали, джанга б назвала її якось типу 'pizza_pizzamodel' (назва апки + назва класу)
+    name = models.CharField(max_length=20) # поле для назви піци. це звичайний рядок тексту (varchar в базі), обов'язково обмежуємо його довжину до 20 символів
+    size = models.IntegerField() # поле для розміру піци. це буде просто ціле число (integer), наприклад 30, 40 або 50 см
+    price = models.FloatField() # поле для ціни. юзаємо float, бо ціна може бути з копійками (число з плаваючою комою)

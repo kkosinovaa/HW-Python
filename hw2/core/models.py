@@ -1,7 +1,7 @@
-from django.db import models
+from django.db import models # імпортую базовий модуль моделс з джанги, щоб мати змогу описувати таблички для бази даних
 
-class BaseModel(models.Model):
-    class Meta:
-        abstract = True
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class BaseModel(models.Model): # створюю базовий клас моделі, від якого потім будуть наслідуватись інші наші моделі (наприклад, та ж піца)
+    class Meta: # внутрішній клас мета потрібен, щоб задати специфічні налаштування для цієї моделі
+        abstract = True # супер важлива штука: кажемо джанзі, що це абстрактна модель. тобто вона не буде створювати окрему таблицю basemodel у базі даних, це просто як шаблон
+    created_at = models.DateTimeField(auto_now_add=True) # поле для дати і часу створення запису. auto_now_add=true означає, що джанга сама підставить поточний час лише один раз при створенні об'єкта, і більше його не чіпатиме
+    updated_at = models.DateTimeField(auto_now=True) # поле для дати оновлення. auto_now=true каже джанзі автоматично перезаписувати цей час на поточний кожного разу, коли ми щось змінюємо і зберігаємо (save) об'єкт у базу
