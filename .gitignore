@@ -3,3 +3,4 @@
 __pycache__/
 *.pyc
 hw1/db.sqlite3
+hw3/.env

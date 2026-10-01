@@ -1,5 +1,5 @@
 """
-WSGI config for python_hw project.
+WSGI configs for python_hw project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -1,5 +1,5 @@
 """
-ASGI config for python_hw project.
+ASGI configs for python_hw project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
