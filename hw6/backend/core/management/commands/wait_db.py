@@ -14,7 +14,7 @@ class Command(BaseCommand):
                 connection.ensure_connection()
                 con_db=True
             except OperationalError:
-                self.stdout.write("Waiting for database,wAait 3seconds...")
+                self.stdout.write("Waiting for database,wait 3seconds...")
                 time.sleep(3)
 
         self.stdout.write(self.style.SUCCESS("Database connected"))

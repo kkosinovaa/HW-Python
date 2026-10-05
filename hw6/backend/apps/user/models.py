@@ -6,14 +6,12 @@ from core.models import BaseModel
 
 from apps.user.managers import UserManager
 
-
-# Create your models here.
 class UserModel(AbstractBaseUser, PermissionsMixin,BaseModel):
     class Meta:
         db_table = 'auth_user'
         ordering = ['-id',]
     email = models.EmailField(unique=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False) #чи є адміністратором
 
     USERNAME_FIELD = 'email'#поле яке відповідає за логін

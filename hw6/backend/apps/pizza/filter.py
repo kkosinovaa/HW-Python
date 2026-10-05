@@ -24,7 +24,7 @@ class PizzaFilter(filters.FilterSet):
   price_gt = filters.NumberFilter(field_name='price', lookup_expr='gt')
   price_lt = filters.NumberFilter(field_name='price', lookup_expr='lt')
   price_gte = filters.NumberFilter(field_name='price', lookup_expr='gte')
-  price_lte = filters.NumberFilter(field_name='price', lookup_expr='lt')
+  price_lte = filters.NumberFilter(field_name='price', lookup_expr='lte')
 
   order=filters.OrderingFilter(
       fields= PizzaSerializer.Meta.fields

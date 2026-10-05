@@ -25,4 +25,3 @@ class UserManager(Manager):
             raise ValueError('Superuser must have is_superuser=True.')
         user = self.create_user(email=email,password=password,**extra_fields)
         return user
-

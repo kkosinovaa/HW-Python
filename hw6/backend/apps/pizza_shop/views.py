@@ -25,4 +25,3 @@ class PizzaShopAddPizzaView(GenericAPIView):
         return Response(shop_serializer.data, status=status.HTTP_201_CREATED)
 
 
-

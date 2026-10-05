@@ -7,8 +7,6 @@ from apps.pizza.filter import PizzaFilter
 from apps.pizza.models import PizzaModel
 from apps.pizza.serializers import PizzaPhotoSerializer, PizzaSerializer
 
-
-# Create your views here.
 class PizzaListCreateView(ListCreateAPIView):
     serializer_class = PizzaSerializer
 
@@ -29,6 +27,10 @@ class PizzaRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     serializer_class = PizzaSerializer
     queryset = PizzaModel.objects.all()
     http_method_names = ['get', 'put', 'delete','patch']
+
+    def perform_destroy(self, instance):
+        instance.photo.delete(save=False)
+        instance.delete()
 
 class PizzaAddPhotoView(UpdateAPIView):
     serializer_class = PizzaPhotoSerializer
