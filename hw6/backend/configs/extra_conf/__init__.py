@@ -4,3 +4,6 @@ from .email_conf import *
 
 # підтягуємо налаштування celery в основні settings django
 from .celery_conf import *
+
+# підтягуємо налаштування channels
+from .channels_conf import *

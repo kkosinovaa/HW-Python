@@ -11,6 +11,12 @@ class ActionTokenEnum(Enum):
         'recovery',
         timedelta(minutes=10),
     )
+    # токен для websocket підключення, живе тільки 10 секунд
+    SOCKET = (
+        'socket',
+        timedelta(seconds=10),
+    )
     def __init__(self,token_type, lifetime):
         self.token_type = token_type
         self.lifetime = lifetime
+

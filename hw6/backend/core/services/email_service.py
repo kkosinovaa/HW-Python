@@ -67,16 +67,16 @@ class EmailService:
             subject="Recovery"
         )
 
-    @staticmethod
-    @app.task
-    def spam():
-        # перебираємо всіх користувачів
-        for user in UserModel.objects.all():
-
-            # spam вже виконується celery, тому тут просто викликаємо відправку листа
-            EmailService.__send_email(
-                user.email,
-                'spam.html',
-                {},
-                'SPAM'
-            )
+    # @staticmethod
+    # @app.task
+    # def spam():
+    #     # перебираємо всіх користувачів
+    #     for user in UserModel.objects.all():
+    #
+    #         # spam вже виконується celery, тому тут просто викликаємо відправку листа
+    #         EmailService.__send_email(
+    #             user.email,
+    #             'spam.html',
+    #             {},
+    #             'SPAM'
+    #         )

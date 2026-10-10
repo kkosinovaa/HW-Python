@@ -18,15 +18,15 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 # тут налаштовуємо періодичні задачі
-app.conf.beat_schedule = {
-    'send_spam_every_minutes': {
-        # шлях до задачі, яку треба запускати
-        'task': 'core.services.email_service.spam',
-
-        # crontab без параметрів означає запуск кожну хвилину
-        'schedule': crontab(),
-
-        # якщо задача приймає аргументи, їх можна передати через args
-        # 'args': (),
-    }
-}
+# app.conf.beat_schedule = {
+#     'send_spam_every_minutes': {
+#         # шлях до задачі, яку треба запускати
+#         'task': 'core.services.email_service.spam',
+#
+#         # crontab без параметрів означає запуск кожну хвилину
+#         'schedule': crontab(),
+#
+#         # якщо задача приймає аргументи, їх можна передати через args
+#         # 'args': (),
+#     }
+# }

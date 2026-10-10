@@ -36,6 +36,8 @@ AUTH_USER_MODEL ='user.UserModel'
 # Application definition
 
 INSTALLED_APPS = [
+    # daphne запускає django через asgi і дає можливість працювати з websocket
+    'daphne',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
@@ -75,6 +77,8 @@ TEMPLATES = [
     },
 ]
 
+# цей application використовується для asgi-запитів, зокрема websocket
+ASGI_APPLICATION = 'configs.asgi.application'
 WSGI_APPLICATION = 'configs.wsgi.application'
 
 
