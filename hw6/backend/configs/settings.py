@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.pizza',
     'apps.pizza_shop',
+# зберігає результати виконання celery-задач у базі даних
+    'django_celery_results',
+# додає підтримку періодичних задач через celery beat
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

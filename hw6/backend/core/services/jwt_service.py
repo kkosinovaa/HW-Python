@@ -32,6 +32,7 @@ class JWTService:
     def create_token(user,token_class: ActionTokenClassType):
         return token_class.for_user(user)
     @staticmethod
+    # перевіряє токен, дістає user_id і повертає користувача з бази
     def verify_token(token, token_class: ActionTokenClassType):
         try:
             token_res = token_class(token)
