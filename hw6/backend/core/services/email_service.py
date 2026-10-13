@@ -1,79 +1,96 @@
-import os
+# render_to_string бере html-шаблон і підставляє в нього дані,
+# після чого повертає готовий html-текст листа
+from django.template.loader import render_to_string
 
-from django.contrib.auth import get_user_model
+# EmailMultiAlternatives використовується для створення і відправки email,
+# у тому числі html-версії листа
 from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
 
+# UserModel це наша модель користувача.
+# нижче вона використовується в spam(), щоб отримати всіх користувачів
+# і відправити лист кожному з них
+from apps.user.models import UserModel
+
+# app це celery app, створений у configs/celery.py.
+# тут він потрібен для декоратора @app.task,
+# який реєструє метод як celery-задачу
 from configs.celery import app
-from core.services.jwt_service import ActivateToken, JWTService, RecoveryToken
-
-
-UserModel = get_user_model()
 
 
 class EmailService:
 
-    # позначаємо функцію як задачу celery
+    @staticmethod
+    def __send_email(to: str, template_name: str, context: dict, subject: str):
+        # render_to_string формує html листа з шаблону
+        # template_name вказує, який шаблон використати,
+        # а context містить дані, які підставляються в шаблон
+        html_content = render_to_string(template_name, context)
+
+        # створюємо email-повідомлення.
+        # subject це тема листа, to це список отримувачів
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body='',
+            to=[to]
+        )
+
+        # додаємо html-версію листа,
+        # щоб поштовий клієнт відобразив готову html-сторінку
+        email.attach_alternative(html_content, 'text/html')
+
+        # фактично відправляємо email через налаштований django email backend
+        email.send()
+
+
+    @staticmethod
     @app.task
-    def __send_email(to: str, template_name: str, context: dict, subject: str) -> None:
-        # беремо потрібний html шаблон
-        template = get_template(template_name)
+    def register(user_id: int, token: str):
+        # @app.task робить цей метод celery-задачею,
+        # тому він може виконуватися не в django request,
+        # а окремим celery worker
 
-        # передаємо дані в шаблон
-        html_content = template.render(context)
+        # отримуємо користувача з бази по id,
+        # бо в celery-задачу краще передавати прості дані,
+        # а не сам django model object
+        user = UserModel.objects.get(pk=user_id)
 
-        # створюємо лист
-        msg = EmailMultiAlternatives(
-            to=[to],
-            from_email=os.environ.get('EMAIL_HOST_USER'),
-            subject=subject
+        # викликаємо спільний метод відправки листа
+        # і передаємо email користувача та token у шаблон
+        EmailService.__send_email(
+            user.email,
+            'register.html',
+            {'token': token},
+            'Activate account'
         )
 
-        # додаємо html до листа
-        msg.attach_alternative(html_content, "text/html")
 
-        # відправляємо лист
-        msg.send()
+    @staticmethod
+    @app.task
+    def recovery(user_id: int, token: str):
+        # ця задача працює так само через celery worker,
+        # але використовується для відновлення пароля
 
-    @classmethod
-    def register(cls, user):
-        # створюємо токен для активації користувача
-        token = JWTService.create_token(user, ActivateToken)
+        # знаходимо користувача в базі по id,
+        # який передали під час створення задачі
+        user = UserModel.objects.get(pk=user_id)
 
-        # створюємо посилання для активації
-        url = f'http://localhost/activate/{token}'
-
-        # delay передає відправку листа celery
-        cls.__send_email.delay(
-            to=user.email,
-            template_name='register.html',
-            context={'name': user.profile.name, 'url': url},
-            subject="Register"
+        # передаємо recovery token у шаблон листа
+        EmailService.__send_email(
+            user.email,
+            'recovery.html',
+            {'token': token},
+            'Recovery password'
         )
 
-    @classmethod
-    def recovery(cls, user):
-        # створюємо токен для відновлення пароля
-        token = JWTService.create_token(user, RecoveryToken)
-
-        # створюємо посилання для зміни пароля
-        url = f'http://localhost/api/auth/recovery/{token}'
-
-        # відправку recovery листа теж передаємо celery
-        cls.__send_email.delay(
-            to=user.email,
-            template_name='recovery.html',
-            context={'url': url},
-            subject="Recovery"
-        )
 
     @staticmethod
     @app.task
     def spam():
-        # перебираємо всіх користувачів
+        # UserModel.objects.all() отримує всіх користувачів з бази,
+        # щоб задача могла пройтись по кожному користувачу
         for user in UserModel.objects.all():
 
-            # spam вже виконується celery, тому тут просто викликаємо відправку листа
+            # кожному користувачу відправляється однаковий spam лист
             EmailService.__send_email(
                 user.email,
                 'spam.html',

@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+# імпортуємо додаткові конфігурації з configs/extra_conf.
+# у extra_conf/__init__.py імпортується celery_conf.py,
+# тому змінні CELERY_* звідти стають частиною django settings.
+# після цього configs/celery.py може прочитати їх через
+# app.config_from_object(..., namespace='CELERY')
 from .extra_conf import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,9 +52,13 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.pizza',
     'apps.pizza_shop',
-# зберігає результати виконання celery-задач у базі даних
+    # додає django-моделі для зберігання результатів celery задач у базі.
+    # з цим застосунком пов'язаний CELERY_RESULT_BACKEND = 'django-db'
     'django_celery_results',
-# додає підтримку періодичних задач через celery beat
+
+    # додає моделі для зберігання періодичних задач і їх розкладу в базі.
+    # його використовує DatabaseScheduler,
+    # вказаний у CELERY_BEAT_SCHEDULER в celery_conf.py
     'django_celery_beat',
 ]
 
@@ -131,3 +140,17 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = 'storage'
 MEDIA_URL = '/api/media/'
 APPEND_SLASH = False
+
+
+# підключаємо наш глобальний обробник помилок замість стандартного drf handler.
+# коли у view або сервісі виникає exception, django rest framework
+# передає його у core.handlers.error_handler.error_handler().
+#
+# наприклад JWTService.verify_token() при неправильному jwt
+# викликає raise JWTException().
+# error_handler отримує цю помилку, визначає ім'я класу "JWTException",
+# знаходить для нього окремий handler у словнику handlers
+# і повертає клієнту відповідь 401
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'core.handlers.error_handler.error_handler',
+}

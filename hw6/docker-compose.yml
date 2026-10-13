@@ -1,47 +1,114 @@
 services:
+  # django застосунок.
+  # цей контейнер запускає backend і працює з mysql через налаштування з .env.
+  # код backend монтується в /app, тому зміни у файлах одразу доступні в контейнері
   app:
     build:
+      # docker image для app збирається з Dockerfile у поточній папці
       context: .
+
     volumes:
+      # локальна папка backend підключається всередину контейнера як /app
       - ./backend:/app
+
     env_file:
+      # з .env django отримує SECRET_KEY, DEBUG,
+      # MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST та MYSQL_PORT
       - .env
+
     ports:
+      # порт 8000 всередині контейнера доступний на localhost:8888
       - "8888:8000"
+
     restart: on-failure
+
     command:
+      # спочатку wait_db чекає, поки mysql стане доступним,
+      # потім застосовуються міграції,
+      # і тільки після цього запускається django server
       sh -c "python manage.py wait_db && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
+
+  # mysql база даних, яку використовує django
   db:
+    # використовуємо готовий docker image mysql 8
     image: mysql:8
+
     env_file:
+      # mysql також читає свої параметри з того самого .env
       - .env
+
     ports:
+      # mysql працює на 3306 всередині docker,
+      # а з host-машини до нього можна звертатися через порт 3307
       - "3307:3306"
+
     volumes:
+      # дані mysql зберігаються локально,
+      # тому вони не зникають після перезапуску контейнера
       - ./mysql:/var/lib/mysql
+
     restart: on-failure
 
+
+  # nginx працює як web server і reverse proxy.
+  # через nginx клієнт може звертатися до backend api
   web:
     image: nginx:alpine
+
     ports:
+      # nginx доступний з host-машини на стандартному http порту 80
       - "80:80"
+
     volumes:
+      # client містить статичні файли, які nginx може віддавати напряму
       - ./client:/usr/share/nginx/html
+
+      # наш nginx.conf замінює стандартну конфігурацію nginx
+      # і містить правила проксіювання запитів до django app
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
 
-  # redis використовується celery як брокер для передачі задач
+
+  # redis використовується celery як broker.
+  # django/celery відправляє задачу в redis,
+  # а celery worker забирає її звідти і виконує.
+  #
+  # назва сервісу саме "redis" важлива:
+  # у celery_conf.py використовується
+  # CELERY_BROKER_URL = 'redis://redis:6379/0'.
+  # друге слово redis у цьому url є ім'ям цього docker service,
+  # бо контейнери в одній docker compose мережі
+  # можуть звертатися один до одного за назвами сервісів
   redis:
     image: redis:alpine
 
-  # цей контейнер запускає celery worker разом з celery beat
+
+  # окремий контейнер для виконання celery задач.
+  # він використовує той самий django проєкт і ті самі settings,
+  # що й контейнер app
   celery:
     build:
+      # збирається з того самого Dockerfile, що й django app,
+      # тому всередині є той самий python-код і залежності
       context: .
+
     volumes:
+      # підключаємо backend у /app,
+      # щоб celery бачив configs/celery.py,
+      # email_service.py та інші модулі django
       - ./backend:/app
+
     env_file:
+      # celery отримує ті самі змінні середовища,
+      # які потрібні django settings і підключенню до бази
       - .env
+
     restart: on-failure
+
+    # -A configs вказує celery завантажити app з django-пакета configs.
+    # worker запускає процес, який виконує задачі.
+    # -B додатково запускає celery beat у цьому самому контейнері.
+    # beat читає beat_schedule з configs/celery.py
+    # і періодично відправляє задачі worker через redis
     command: >
       sh -c "celery -A configs worker -l info -B"
