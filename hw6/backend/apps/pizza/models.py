@@ -22,6 +22,7 @@ class DaysChoices(models.TextChoices):
 class PizzaModel(BaseModel):
     class Meta:
         db_table = 'pizzas'
+        ordering = ('-id',)
     # name = models.CharField(max_length=20,blank=True)
     # size = models.IntegerField(default=25)
     # price =models.FloatField()

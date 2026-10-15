@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'django_celery_results',
 # додає підтримку періодичних задач через celery beat
     'django_celery_beat',
-    'apps.chat'
+    'apps.chat',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -132,7 +133,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/drf-static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = 'storage'
 MEDIA_URL = '/api/media/'
 APPEND_SLASH = False

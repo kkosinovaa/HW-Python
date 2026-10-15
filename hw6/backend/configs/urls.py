@@ -20,10 +20,35 @@ from django.urls import include, path
 
 from configs import settings
 
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+
+from rest_framework.permissions import AllowAny
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="About pizza",
+        default_version='v1',
+        description="Shop pizza here",
+        contact=openapi.Contact(email="admin@gmail.com")
+    ),
+    public=True,
+    permission_classes=[AllowAny]
+)
+
+
 urlpatterns = [
     path('api/pizzas', include('apps.pizza.urls')),
     path('api/pizza_shops/', include('apps.pizza_shop.urls')),
     path('api/auth', include('apps.auth.urls')),
     path('api/users/', include('apps.user.urls')),
+
+    path(
+        'api/doc',
+        schema_view.with_ui('swagger', cache_timeout=0),
+        name='schema_swagger'
+    ),
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
