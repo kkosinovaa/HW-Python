@@ -4,7 +4,6 @@ from .views import PizzaAddPhotoView, PizzaListCreateView, PizzaRetrieveUpdateDe
 
 urlpatterns = [
     path("", PizzaListCreateView.as_view()),
-    path("<int:pk>", PizzaRetrieveUpdateDestroyView.as_view()),
-    path("<int:pk>/photos", PizzaAddPhotoView.as_view()),
-
+    path("/<int:pk>", PizzaRetrieveUpdateDestroyView.as_view()),
+    path("/<int:pk>/photos", PizzaAddPhotoView.as_view()),
 ]

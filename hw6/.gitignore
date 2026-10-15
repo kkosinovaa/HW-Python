@@ -3,3 +3,4 @@
 mysql
 __pycache__/
 .env
+celerybeat-schedule*
