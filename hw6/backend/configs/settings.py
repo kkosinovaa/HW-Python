@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_celery_results',
 # додає підтримку періодичних задач через celery beat
     'django_celery_beat',
+    'apps.chat'
 ]
 
 MIDDLEWARE = [
